@@ -124,7 +124,7 @@ ALTER TABLE boleta_detalle ADD CONSTRAINT boleta_detalle_boleta
 ALTER TABLE boleta_detalle ADD CONSTRAINT boleta_detalle_producto
     FOREIGN KEY (CODPROD)
     REFERENCES producto (CODPROD);
-
+ 
 
 
 
