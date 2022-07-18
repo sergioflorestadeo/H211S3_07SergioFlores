@@ -126,5 +126,15 @@ ALTER TABLE boleta_detalle ADD CONSTRAINT boleta_detalle_producto
     REFERENCES producto (CODPROD);
  
 
+INSERT INTO producto
+	(NOMPROD,PRECPROD,STOCKPROD,ESTPROD)
+	VALUES
+('Pizza Americana Personal','16.50','5','A'),
+('Pizza Vegetariana Personal','20.00','5','A'),
+('Pizza Carnivora Familiar','17.50','5','A'),
+('Pizza Mexicana Personal','11.00','5','A'),
+('Coca Cola 1.5L','6.50','5','A'),
+('7Up 500ml','2.00','5','A')
+
 
 
