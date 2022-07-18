@@ -1,116 +1,130 @@
-USE MASTER;
+USE master;
 GO
 
-
-CREATE DATABASE dbPizzeria;
+-- Creacion de Base de Datos:
+CREATE DATABASE dbPizzeria
 GO
 
-USE dbPizzeria;
+-- Uso de Base de datos:
+USE dbPizzeria
 GO
 
-
--- CREAR TABLA "CLIENTE" --
+-- tables
+-- Table: CLIENTE
 CREATE TABLE CLIENTE (
-    CODCLI int  NOT NULL,
+    CODCLI int  NOT NULL IDENTITY(1, 1),
     NOMCLI varchar(50)  NOT NULL,
+    APECLI varchar(50)  NOT NULL,
     TELCLI char(9)  NOT NULL,
     DIRCLI varchar(30)  NOT NULL,
-    UBIGEO_CODUBI int  NOT NULL,
-    boleta_IDBOL int  NOT NULL,
+    ESTCLI char(1)  NOT NULL,
+    CORCLI varchar(50)  NOT NULL,
+    CODUBI char(6)  NOT NULL,
     CONSTRAINT CLIENTE_pk PRIMARY KEY  (CODCLI)
 );
 
--- CREAR TABLA "REPARTIDOR" --
-CREATE TABLE REPARTIDOR (
-    CODREP int  NOT NULL,
-    NOMREP varchar(50)  NOT NULL,
-    TELREP char(9)  NOT NULL,
-    UBIREP int  NOT NULL,
-    CLIENTE_CODCLI int  NOT NULL,
-    CONSTRAINT REPARTIDOR_pk PRIMARY KEY  (CODREP)
+-- Table: EMPLEADO
+CREATE TABLE EMPLEADO (
+    CODEMP int  NOT NULL IDENTITY(1, 1),
+    NOMEMP varchar(25)  NOT NULL,
+    APEEMP varchar(25)  NOT NULL,
+    TELEMP char(9)  NOT NULL,
+    ESTEMP char(1)  NOT NULL,
+    ROLEMP char(1)  NOT NULL,
+    DNIEMP char(8)  NOT NULL,
+    IDSUC int  NOT NULL,
+    CODUBI char(6)  NOT NULL,
+    CONSTRAINT EMPLEADO_pk PRIMARY KEY  (CODEMP)
 );
 
--- CREAR TABLA "UBIGEO" --
+-- Table: SURCURSAL
+CREATE TABLE SURCURSAL (
+    IDSUC int  NOT NULL IDENTITY(1, 1),
+    NOMSUC varchar(50)  NOT NULL,
+    CORSUC varchar(50)  NOT NULL,
+    DIRSUC varchar(50)  NOT NULL,
+    CODUBI char(6)  NOT NULL,
+    CONSTRAINT SURCURSAL_pk PRIMARY KEY  (IDSUC)
+);
+
+-- Table: UBIGEO
 CREATE TABLE UBIGEO (
-    CODUBI int  NOT NULL,
-    DISUBI int  NOT NULL,
-    PROVUBI int  NOT NULL,
-    DEPUBI int  NOT NULL,
+    CODUBI char(6)  NOT NULL,
+    DISUBI varchar(25)  NOT NULL,
+    PROVUBI varchar(25)  NOT NULL,
+    DEPUBI varchar(25)  NOT NULL,
     CONSTRAINT UBIGEO_pk PRIMARY KEY  (CODUBI)
 );
 
--- CREAR TABLA "VENDEDOR" --
-CREATE TABLE VENDEDOR (
-    CODVEN int  NOT NULL,
-    NOMVEN int  NOT NULL,
-    TELVEN int  NOT NULL,
-    boleta_IDBOL int  NOT NULL,
-    CONSTRAINT VENDEDOR_pk PRIMARY KEY  (CODVEN)
-);
-
--- CREAR TABLA "BOLETA" --
+-- Table: boleta
 CREATE TABLE boleta (
-    IDBOL int  NOT NULL,
+    IDBOL int  NOT NULL IDENTITY(1, 1),
     FECBOL date  NOT NULL,
+    CODEMP int  NOT NULL,
     CODCLI int  NOT NULL,
-    TOTBOL decimal(10,2)  NOT NULL,
-    boleta_detalle_IDDETBOL int  NOT NULL,
     CONSTRAINT boleta_pk PRIMARY KEY  (IDBOL)
 );
 
--- CREAR TABLA "DETALLE" --
+-- Table: boleta_detalle
 CREATE TABLE boleta_detalle (
-    IDDETBOL int  NOT NULL,
+    IDDETBOL int  NOT NULL IDENTITY(1, 1),
     CANTPROD int  NOT NULL,
-    PRECBOL int  NOT NULL,
-    CODPROD int  NOT NULL,
     IDBOL int  NOT NULL,
-    producto_CODPROD int  NOT NULL,
+    CODPROD int  NOT NULL,
     CONSTRAINT boleta_detalle_pk PRIMARY KEY  (IDDETBOL)
 );
 
--- CREAR TABLA "PRODUCTO" --
+-- Table: producto
 CREATE TABLE producto (
-    CODPROD int  NOT NULL,
+    CODPROD int  NOT NULL IDENTITY(1, 1),
     NOMPROD varchar(50)  NOT NULL,
     PRECPROD decimal(10,2)  NOT NULL,
     STOCKPROD int  NOT NULL,
-    ESTSTOCKPROD char(1)  NOT NULL,
+    ESTPROD char(1)  NOT NULL,
     CONSTRAINT producto_pk PRIMARY KEY  (CODPROD)
 );
 
--- CREAR REFERENCIA "CLIENTE_UBIGEO" (CLIENTE) --
+-- foreign keys
+-- Reference: CLIENTE_UBIGEO (table: CLIENTE)
 ALTER TABLE CLIENTE ADD CONSTRAINT CLIENTE_UBIGEO
-    FOREIGN KEY (UBIGEO_CODUBI)
+    FOREIGN KEY (CODUBI)
     REFERENCES UBIGEO (CODUBI);
 
--- CREAR REFERENCIA "CLIENTE_boleta" (CLIENTE) --
-ALTER TABLE CLIENTE ADD CONSTRAINT CLIENTE_boleta
-    FOREIGN KEY (boleta_IDBOL)
-    REFERENCES boleta (IDBOL);
+-- Reference: EMPLEADO_SURCURSAL (table: EMPLEADO)
+ALTER TABLE EMPLEADO ADD CONSTRAINT EMPLEADO_SURCURSAL
+    FOREIGN KEY (IDSUC)
+    REFERENCES SURCURSAL (IDSUC);
 
--- CREAR REFERENCIA "REPARTIDOR_CLIENTE" (REPARTIDOR)--
-ALTER TABLE REPARTIDOR ADD CONSTRAINT REPARTIDOR_CLIENTE
-    FOREIGN KEY (CLIENTE_CODCLI)
+-- Reference: EMPLEADO_UBIGEO (table: EMPLEADO)
+ALTER TABLE EMPLEADO ADD CONSTRAINT EMPLEADO_UBIGEO
+    FOREIGN KEY (CODUBI)
+    REFERENCES UBIGEO (CODUBI);
+
+-- Reference: SURCURSAL_UBIGEO (table: SURCURSAL)
+ALTER TABLE SURCURSAL ADD CONSTRAINT SURCURSAL_UBIGEO
+    FOREIGN KEY (CODUBI)
+    REFERENCES UBIGEO (CODUBI);
+
+-- Reference: boleta_CLIENTE (table: boleta)
+ALTER TABLE boleta ADD CONSTRAINT boleta_CLIENTE
+    FOREIGN KEY (CODCLI)
     REFERENCES CLIENTE (CODCLI);
 
--- CREAR REFERENCIA "VENDEDOR_boleta" (VENDEDOR) --
-ALTER TABLE VENDEDOR ADD CONSTRAINT VENDEDOR_boleta
-    FOREIGN KEY (boleta_IDBOL)
+-- Reference: boleta_EMPLEADO (table: boleta)
+ALTER TABLE boleta ADD CONSTRAINT boleta_EMPLEADO
+    FOREIGN KEY (CODEMP)
+    REFERENCES EMPLEADO (CODEMP);
+
+-- Reference: boleta_detalle_boleta (table: boleta_detalle)
+ALTER TABLE boleta_detalle ADD CONSTRAINT boleta_detalle_boleta
+    FOREIGN KEY (IDBOL)
     REFERENCES boleta (IDBOL);
 
--- CREAR REFERENCIA  "boleta_boleta_detalle" (boleta) --
-ALTER TABLE boleta ADD CONSTRAINT boleta_boleta_detalle
-    FOREIGN KEY (boleta_detalle_IDDETBOL)
-    REFERENCES boleta_detalle (IDDETBOL);
-
--- CREAR REFERENCIA  "boleta_detalle_producto" (boleta_detalle)--
+-- Reference: boleta_detalle_producto (table: boleta_detalle)
 ALTER TABLE boleta_detalle ADD CONSTRAINT boleta_detalle_producto
-    FOREIGN KEY (producto_CODPROD)
+    FOREIGN KEY (CODPROD)
     REFERENCES producto (CODPROD);
 
 
-
-Insert Into producto;
 
 
