@@ -1,0 +1,176 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:fn="http://java.sun.com/jsp/jstl/functions">
+    <h:head>
+        <f:event type="preRenderView" listener="#{subfamiliaC.listar()}"/>
+        <title>Producto</title>
+        <script type="text/javascript">if (window.PrimeFaces) {
+                PrimeFaces.settings.locale = 'en_US';
+                PrimeFaces.settings.projectStage = 'Development';
+            }
+        </script>
+    </h:head>
+    <h:body>
+        <h:form>
+            <p:menubar>
+                <p:menuitem    value="CLIENTE" outcome="MaestroCliente" />
+                <p:menuitem value="PRODUCTOS" outcome="MaestroProductos"/>
+                <p:menuitem  value="VENTA" outcome="Ventas"/>
+            </p:menubar>
+        </h:form>
+        <p:growl id="mensaje" showDetail="true" />
+        <p:growl id="growl-sticky" for="sticky-key" showDetail="true" sticky="true" />
+
+        <h:form id="form">
+
+
+            <p:panelGrid columns="2">
+
+                <p:outputLabel value="Nombre" /> <p:inputText maxlength="50" placeholder="Escribe aqui" value="#{subfamiliaC.subfamilia.NOMSUBFAM}"  >
+                </p:inputText>
+
+                <p:outputLabel value="Descripcion" /> <p:inputTextarea maxlength="50" placeholder="Escribe aqui" value="#{subfamiliaC.subfamilia.DESSUBFAM}"  >
+                </p:inputTextarea> 
+
+                <p:outputLabel value="PRECIO" for="precios"/> 
+                <p:inputNumber id="precios" value="#{subfamiliaC.subfamilia.PRESUBFAM}" modifyValueOnWheel="false" placeholder="Ingresar Precio" />
+                <p:outputLabel value="STOCK" /> <p:inputText maxlength="8" placeholder="Escribe aqui"  value="#{subfamiliaC.subfamilia.STOCKSUBFAM}">
+                    <p:keyFilter regEx="/[0-9]/" />
+                </p:inputText>
+
+                <p:outputLabel value="CATEGORIA:"/>
+                <p:selectOneMenu id="marca" value="#{subfamiliaC.subfamilia.familia.IDFAM}" style="width: 336px" filter="true" filterMatchMode="startsWith"  label="UBIGEO">
+                    <f:selectItem itemLabel="Selecione la Categoria" noSelectionOption="true"/>
+                    <f:selectItems value="#{familiaC.listadoFamilia}" var="familia"
+                                   itemValue="#{familia.IDFAM}" 
+                                   itemLabel="#{familia.NOMFAM}"/>
+                </p:selectOneMenu>
+
+                <p:outputLabel value="Sucursal"/>
+                <p:selectOneMenu id="sur" value="#{sucursalC.sucursal.IDSUR}" style="width: 336px" filter="true" filterMatchMode="startsWith"  label="UBIGEO">
+                    <f:selectItem itemLabel="Selecione la Categoria" noSelectionOption="true"/>
+                    <f:selectItems value="#{sucursalC.listadosucursal}" var="sucursal"
+                                   itemValue="#{sucursal.IDSUR}" 
+                                   itemLabel="#{sucursal.NOMSUR}"/>
+                </p:selectOneMenu>
+
+                <p:commandButton value="Registrar" actionListener="#{subfamiliaC.registrarproductos()}" update="tablapro mensaje" />
+
+                <p:commandButton value="PDF" styleClass="p-mr-2 p-mb-2">
+                    <p:dataExporter type="pdf" target="tablapro" fileName="Listado Productos"
+                                    options="#{customizedDocumentsView.pdfOpt}"/>
+                </p:commandButton>
+            </p:panelGrid>
+
+
+
+            <p:dataTable var="tblpro" id="tablapro" value="#{subfamiliaC.listado}" rows="10"
+                         paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+                         currentPageReportTemplate="{startRecord}-{endRecord} of {totalRecords} records"
+                         rowsPerPageTemplate="5,10,{ShowAll|'All'}" >
+
+
+                <f:facet name="header">
+                    <div style="float:right;padding-top: 5px;">
+
+                        <h:commandLink>
+                            <p:graphicImage url="../resources/images/pdf.png" width="36"/>
+                            <p:dataExporter type="pdf" target="tablapro" fileName="Productos.pdf" pageOnly="false" />
+                        </h:commandLink>
+                        <h:commandLink>
+                            <p:graphicImage url="../resources/images/excel.png" width="36"/>
+                            <p:dataExporter type="xls" target="tablapro" fileName="Productos.xls" pageOnly="false" />
+                        </h:commandLink>
+                    </div>  
+                </f:facet>
+                <p:column headerText="NOMBRE">
+                    <h:outputText value="#{tblpro.NOMSUBFAM}" />
+                </p:column>
+                <p:column headerText="NOMBRE">
+                    <h:outputText value="#{tblpro.DESSUBFAM}" />
+                </p:column>
+                <p:column headerText="PRECIO">
+                    <h:outputText value="#{tblpro.PRESUBFAM}" />
+                </p:column>
+                <p:column headerText="STOCK">
+                    <h:outputText value="#{tblpro.STOCKSUBFAM}" />
+                </p:column>
+                <p:column headerText="CATEGORIA">
+                    <h:outputText value="#{tblpro.familia.NOMFAM}" />
+                </p:column>
+
+
+
+
+                <p:column headerText="Modificar" exportable="false">
+                    <p:commandButton oncomplete="PF('wdlgDatos').show();" value="Modificar" update=":frmdialogo">
+                        <f:setPropertyActionListener value="#{tblpro}" target="#{subfamiliaC.subfamiliamodificar}" />
+
+                    </p:commandButton>
+                </p:column> 
+                <p:column headerText="Eliminar" exportable="false">
+                    <p:commandButton value="E" icon="ui_icon_trash" actionListener="#{subfamiliaC.eliminar(pro)}" update="tablapro">
+                        <p:confirm header="Confirmación" message="¿Deseas eliminar?" icon="ui_icon_trash"/>
+                    </p:commandButton>
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Yes" type="button" styleClass="ui-confirmdialog-yes" icon="pi pi-check" />
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="pi pi-times" />
+                    </p:confirmDialog> 
+                </p:column>
+
+                <f:facet name="footer">
+                    EN TOTAL HAY #{fn:length(subfamiliaC.listado)} REGISTROS.
+                </f:facet>
+            </p:dataTable>
+
+        </h:form>
+
+
+        <!--  Listado del Cliente -->
+
+
+        <p:dialog header="Datos del Producto" widgetVar="wdlgDatos" id="dlgDatos">
+            <h:form id="frmdialogo"> 
+                <p:panelGrid columns="2">
+                    <p:outputLabel value="Nombre" /> <p:inputText maxlength="50" placeholder="Escribe aqui" value="#{productosC.subfamiliamodificar.NOMPROD}"  >
+                        <p:keyFilter regEx="/[A-Z_a-z_ñ_á_é_í_ó_ú_ ]/"/>
+                    </p:inputText>
+
+                    <p:outputLabel value="PRECIO" /> <p:inputText maxlength="60" placeholder="Escribe aqui" value="#{productosC.subfamiliamodificar.PRECPROD}"  >
+                        <p:keyFilter regEx="/[0-9]/" />
+                    </p:inputText>
+                    <p:outputLabel value="STOCK" /> <p:inputText maxlength="8" placeholder="Escribe aqui"  value="#{productosC.subfamiliamodificar.STOCKPROD}">
+                        <p:keyFilter regEx="/[0-9]/" />
+                    </p:inputText>
+
+                    <p:outputLabel value="CATEGORIA:"/>
+                    <p:selectOneMenu id="marca" value="#{subfamiliaC.subfamiliamodificar.familia.IDFAM}" style="width: 336px" filter="true" filterMatchMode="startsWith"  label="UBIGEO">
+                        <f:selectItem itemLabel="Selecione el Distrito" noSelectionOption="true"/>
+                        <f:selectItems value="#{familiaC.listadoFamilia}" var="familia"
+                                       itemValue="#{familia.IDFAM}" 
+                                       itemLabel="#{familia.NOMFAM}"/>
+                    </p:selectOneMenu>
+
+                    <p:commandButton value="Cancelar" immediate="true" oncomplete="PF('wdlgDatos').hide();" />
+
+                    <p:commandButton value="Modificar" actionListener="#{subfamiliaC.editar()}" 
+                                     update=":form:tablapro" oncomplete="PF('wdlgDatos').hide();" >
+                        <p:confirm header="Confirmación" message="¿Deseas Modificar?" icon="ui-icon-alert"/>
+                        <p:tooltip trackMouse="true"/>
+
+                    </p:commandButton>
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
+                        <p:commandButton value="Si" type="button" styleClass="ui-confirmdialog-yes" icon="ui-icon-check"/>
+                        <p:commandButton value="No" type="button" styleClass="ui-confirmdialog-no" icon="ui-icon-close"/>
+                    </p:confirmDialog>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+    </h:body>
+</html>
+
